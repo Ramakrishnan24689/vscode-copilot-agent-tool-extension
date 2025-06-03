@@ -1,0 +1,204 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.production
+.env.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# VS Code Extension specific
+*.vsix
+.vscode-test/
+.vscode-test/**
+vscode-test/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.idea/
+*.swp
+*.swo
+
+# TypeScript compiled output
+out/
+dist/
+
+# Webpack bundles
+bundle.js
+bundle.js.map
+
+# Extension development and testing
+*.vsix-test/
+
+# Build artifacts that should not be committed
+webview-dist/
+src/webview/dist/
+src/webview/build/
+
+# Copilot Agent Tools Extension specific ignores
+# Generated VSIX packages (exclude versioned packages, keep final release)
+copilot-agent-tools-*.vsix
+vscode-mcs-color-extension-*.vsix
+agent-tools-*.vsix
+
+# Test output files (temporary test results)
+test-results.html
+Test.html
+Test.json
+
+# Backup and temporary files
+*.bak
+*.tmp
+*.old
+*~
+
+# Publishing automation logs
+publish-*.log
+package-*.log
+
+# Screenshots folder (empty placeholder - keep folder structure but ignore contents until ready)
+screenshots/*
+!screenshots/.gitkeep
+
+# VS Code workspace settings (selective ignoring)
+.vscode/settings.json
+.vscode/launch.json
+# Keep .vscode/tasks.json for build automation
+
+# Development artifacts (compiled webview files)
+src/webview/components/*.js
+src/webview/components/*.js.map
+src/webview/*.js
+src/webview/*.js.map
+src/webview/index.html.map
+
+# Keep important files (whitelist critical files)
+!copilot-agent-tools.vsix
+!CHANGELOG.md
+!PUBLISHING.md
+!prepare-publish.js
+!quick-publish.bat
+!quick-publish.ps1
+!README.md
+!package.json
+!package-lock.json
+!tsconfig.json
+!webpack.webview.config.js
+!.vscodeignore
+!LICENSE
+!src/webview/tsconfig.json
+!src/webview/index.html
+
+# Additional development artifacts that might be generated
+*.vsix.sig
+*.nupkg
+coverage/
+.nyc_output/
+
+# Editor and IDE specific files
+.vscode/extensions.json
+.vscode/settings.local.json
+
+# Mac specific files
+.DS_Store
+*.dmg
+
+# Windows specific files  
+*.lnk
+desktop.ini
+
+# Potential future build outputs
+build/
+lib/
+esm/
+cjs/
+
+# Debug and profiling files
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
+
+# Potential documentation build outputs
+docs/build/
+docs/dist/
+
+# Any potential future test artifacts
+*.test.js
+*.test.js.map
+coverage-final.json
+junit.xml

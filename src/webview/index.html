@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline'; script-src {{cspSource}} 'unsafe-eval'; font-src {{cspSource}}; img-src {{cspSource}} data:;">
+    <title>MCS Theme Gallery</title>    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
+        }
+        
+        #root {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--vscode-progressBar-background);
+            border-top: 3px solid var(--vscode-button-background);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            color: var(--vscode-errorForeground);
+        }
+        
+        .error-message {
+            color: var(--vscode-errorForeground);
+            font-size: 16px;
+        }
+        
+        .error-details {
+            color: var(--vscode-descriptionForeground);
+            font-size: 14px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>Loading MCS Theme Gallery...</div>
+        </div>
+    </div>
+
+    <script>
+        // Error handling for React app loading
+        window.addEventListener('error', function(event) {
+            const root = document.getElementById('root');
+            root.innerHTML = `
+                <div class="error">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-message">Failed to load MCS Theme Gallery</div>
+                    <div class="error-details">
+                        ${event.error?.message || event.message || 'An unknown error occurred'}
+                    </div>
+                </div>
+            `;
+        });
+
+        // Initialize VS Code API
+        window.vscode = acquireVsCodeApi();
+          // Set up message handling for React app
+        window.addEventListener('message', event => {
+            // Forward messages to React app when it's loaded
+            if (window.reactAppLoaded) {
+                window.dispatchEvent(new CustomEvent('vscode-message', { detail: event.data }));
+            }
+        });
+    </script>
+</body>
+</html>

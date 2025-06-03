@@ -1,0 +1,53 @@
+# VS Code specific
+.vscode/**
+.vscode-test/**
+
+# Source files (exclude since we include compiled output)
+src/**
+tsconfig.json
+
+# Dependencies 
+node_modules/**
+
+# Build configuration
+webpack.webview.config.js
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git files
+.git/**
+.gitignore
+
+# Test files and results
+test-extension.md
+test-results.html
+Test.html
+Test.json
+**/*.test.ts
+**/*.test.js
+
+# Development files
+*.log
+*.map
+.env*
+.DS_Store
+Thumbs.db
+
+# Publishing preparation files
+prepare-publish.js
+PUBLISHING.md
+
+# TypeScript source files (we want compiled JS instead)
+**/*.ts
+**/*.tsx
+
+# Include necessary files
+!out/**
+!media/**
+!README.md
+!package.json
+!CHANGELOG.md
+!LICENSE*
