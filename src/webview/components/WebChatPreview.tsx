@@ -1,5 +1,5 @@
 // filepath: src/webview/components/WebChatPreview.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   makeStyles,
   shorthands,
@@ -11,6 +11,7 @@ import {
   MessageBarBody,
 } from '@fluentui/react-components';
 import { Warning24Regular, Chat24Regular } from '@fluentui/react-icons';
+import { MockDirectLine, defaultMockActivities } from '../utils/MockDirectLine';
 
 const useStyles = makeStyles({
   container: {
@@ -19,18 +20,21 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     height: '100%',
     minHeight: 0,
+    maxHeight: '100%',
     position: 'relative',
-  },
-  webChatContainer: {
+    overflow: 'hidden',
+  },  webChatContainer: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    minHeight: 0,
+    minHeight: '400px', // Minimum height to prevent collapse
+    maxHeight: '100%',
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: '4px',
     backgroundColor: tokens.colorNeutralBackground1,
     overflow: 'hidden',
+    position: 'relative', // Ensure proper positioning
   },
   loadingContainer: {
     flex: 1,
@@ -55,63 +59,18 @@ const useStyles = makeStyles({
     borderRadius: '4px',
     ...shorthands.padding('24px'),
   },
-  mockPreviewContainer: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: tokens.colorNeutralBackground1,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
-    borderRadius: '4px',
-    overflow: 'hidden',
-  },
-  mockHeader: {
-    ...shorthands.padding('12px'),
-    backgroundColor: tokens.colorNeutralBackground3,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+  updatingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap('8px'),
-  },
-  mockChatArea: {
-    flex: 1,
-    ...shorthands.padding('16px'),
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap('12px'),
-    overflow: 'auto',
-  },
-  mockMessage: {
-    maxWidth: '80%',
-    ...shorthands.padding('8px', '12px'),
-    borderRadius: '8px',
-    fontSize: '14px',
-    lineHeight: '1.4',
-  },
-  botMessage: {
-    backgroundColor: tokens.colorBrandBackground2,
-    color: tokens.colorBrandForeground2,
-    alignSelf: 'flex-start',
-  },
-  userMessage: {
-    backgroundColor: tokens.colorNeutralBackground3,
-    color: tokens.colorNeutralForeground1,
-    alignSelf: 'flex-end',
-  },
-  inputArea: {
-    ...shorthands.padding('12px'),
-    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
-    backgroundColor: tokens.colorNeutralBackground2,
-    display: 'flex',
-    alignItems: 'center',
-    ...shorthands.gap('8px'),
-  },
-  mockInput: {
-    flex: 1,
-    ...shorthands.padding('8px', '12px'),
-    backgroundColor: tokens.colorNeutralBackground1,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    justifyContent: 'center',
+    zIndex: 1000,
     borderRadius: '4px',
-    fontSize: '14px',
   },
 });
 
@@ -127,32 +86,51 @@ export const WebChatPreview: React.FC<WebChatPreviewProps> = ({
   styleOptions,
 }) => {
   const styles = useStyles();
-  const [loadingState, setLoadingState] = useState<'loading' | 'loaded' | 'error' | 'mock'>('loading');
-  const [webChatComponent, setWebChatComponent] = useState<React.ComponentType<any> | null>(null);
+  const [loadingState, setLoadingState] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [isUpdatingStyles, setIsUpdatingStyles] = useState(false);
+  const [webChatComponent, setWebChatComponent] = useState<React.ComponentType<any> | null>(null);  const [directLine, setDirectLine] = useState<any>(null);  const webChatRef = useRef<HTMLDivElement>(null);
+  const webChatInstanceRef = useRef<any>(null);
+  const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const styleOptionsRef = useRef<any>(styleOptions);
+
+  // Update the ref whenever styleOptions changes
+  useEffect(() => {
+    styleOptionsRef.current = styleOptions;
+  }, [styleOptions]);
 
   useEffect(() => {
     const loadWebChat = async () => {
       try {
-        // Always show mock for now to avoid crashes
-        if (useMockDirectLine) {
-          setLoadingState('mock');
-          return;
-        }
-
-        // Try to dynamically load botframework-webchat
         setLoadingState('loading');
         
-        // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Dynamically import botframework-webchat
+        const WebChatModule = await import('botframework-webchat');
+        const ReactWebChat = WebChatModule.default;
         
-        // For now, fall back to mock if not using mock DirectLine
-        // This prevents the extension from crashing
-        setLoadingState('mock');
+        let directLineInstance: any;
         
-        // TODO: Implement actual WebChat loading with proper error handling
-        // const ReactWebChat = await import('botframework-webchat');
-        // setWebChatComponent(() => ReactWebChat.default);
-        // setLoadingState('loaded');
+        if (useMockDirectLine) {
+          // Use MockDirectLine for development/preview
+          directLineInstance = new MockDirectLine(defaultMockActivities);
+        } else {
+          // Use real DirectLine connection
+          if (!directLineTokenEndpoint) {
+            throw new Error('DirectLine token endpoint is required for real connections');
+          }
+          
+          // Fetch token from the provided endpoint
+          const response = await fetch(directLineTokenEndpoint);
+          if (!response.ok) {
+            throw new Error('Failed to retrieve DirectLine token');
+          }
+          
+          const { token } = await response.json();
+          directLineInstance = WebChatModule.createDirectLine({ token });
+        }
+        
+        setDirectLine(directLineInstance);
+        setWebChatComponent(() => ReactWebChat);
+        setLoadingState('loaded');
         
       } catch (error) {
         console.error('Failed to load WebChat:', error);
@@ -161,21 +139,131 @@ export const WebChatPreview: React.FC<WebChatPreviewProps> = ({
     };
 
     loadWebChat();
-  }, [useMockDirectLine, directLineTokenEndpoint]);
-
-  const retryLoading = () => {
+  }, [useMockDirectLine, directLineTokenEndpoint]);  // Debounced WebChat render function
+  const debouncedRenderWebChat = useCallback(async (showUpdateIndicator = false) => {
+    console.log('🔄 debouncedRenderWebChat called:', { 
+      showUpdateIndicator, 
+      hasWebChatRef: !!webChatRef.current, 
+      hasDirectLine: !!directLine,
+      styleOptionsKeys: Object.keys(styleOptionsRef.current || {})
+    });
+    
+    if (!webChatRef.current || !directLine) {
+      console.log('❌ Early return: missing webChatRef or directLine');
+      return;
+    }
+    
+    try {
+      if (showUpdateIndicator) {
+        console.log('🔄 Setting updating styles indicator');
+        setIsUpdatingStyles(true);
+      }
+      
+      const WebChatModule = await import('botframework-webchat');
+      
+      // Store current scroll position to restore later
+      const scrollContainer = webChatRef.current.querySelector('[data-testid="transcript"]');
+      const scrollTop = scrollContainer?.scrollTop || 0;
+      
+      // Clear and re-render with new styles
+      console.log('🎨 Rendering WebChat with styles:', styleOptionsRef.current);
+      webChatRef.current.innerHTML = '';
+      
+      WebChatModule.renderWebChat(
+        {
+          directLine,
+          styleOptions: {
+            ...styleOptionsRef.current,
+            // Ensure proper container sizing
+            rootHeight: '100%',
+            rootWidth: '100%',
+          },
+        },
+        webChatRef.current
+      );
+      
+      console.log('✅ WebChat rendered successfully');
+      
+      // Restore scroll position after a brief delay
+      setTimeout(() => {
+        const newScrollContainer = webChatRef.current?.querySelector('[data-testid="transcript"]');
+        if (newScrollContainer) {
+          newScrollContainer.scrollTop = scrollTop;
+        }
+        setIsUpdatingStyles(false);
+        console.log('📍 Scroll position restored and updating indicator cleared');
+      }, 100);
+      
+    } catch (error) {
+      console.error('❌ Failed to render WebChat:', error);
+      setLoadingState('error');
+      setIsUpdatingStyles(false);
+    }
+  }, [directLine]);  // Initial WebChat render - only runs once when loaded
+  useEffect(() => {
+    console.log('🚀 Initial render effect triggered:', { 
+      hasWebChatComponent: !!webChatComponent, 
+      hasDirectLine: !!directLine, 
+      hasWebChatRef: !!webChatRef.current, 
+      loadingState, 
+      hasWebChatInstance: !!webChatInstanceRef.current 
+    });
+    
+    if (webChatComponent && directLine && webChatRef.current && loadingState === 'loaded' && !webChatInstanceRef.current) {
+      console.log('✅ All conditions met, calling initial render');
+      debouncedRenderWebChat(false);
+      webChatInstanceRef.current = true;
+    }
+  }, [webChatComponent, directLine, loadingState, debouncedRenderWebChat]);// Update style options with debouncing
+  useEffect(() => {
+    console.log('🎨 Style update effect triggered:', { 
+      hasWebChatInstance: !!webChatInstanceRef.current, 
+      loadingState, 
+      styleOptionsKeys: Object.keys(styleOptions || {})
+    });
+    
+    if (webChatInstanceRef.current && loadingState === 'loaded') {
+      // Clear existing timeout
+      if (renderTimeoutRef.current) {
+        console.log('⏰ Clearing existing render timeout');
+        clearTimeout(renderTimeoutRef.current);
+      }
+      
+      // Set new timeout for debounced update
+      console.log('⏰ Setting new render timeout (150ms)');
+      renderTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ Render timeout fired, calling debouncedRenderWebChat');
+        debouncedRenderWebChat(true); // Show update indicator
+      }, 150); // 150ms debounce
+      
+      return () => {
+        if (renderTimeoutRef.current) {
+          console.log('🧹 Cleanup: clearing render timeout');
+          clearTimeout(renderTimeoutRef.current);
+        }
+      };
+    }
+  }, [styleOptions, loadingState, debouncedRenderWebChat]);const retryLoading = () => {
     setLoadingState('loading');
-    // Try again with mock
-    setTimeout(() => {
-      setLoadingState('mock');
-    }, 1000);
+    setWebChatComponent(null);
+    setDirectLine(null);
+    webChatInstanceRef.current = null;
+    setIsUpdatingStyles(false);
+    if (renderTimeoutRef.current) {
+      clearTimeout(renderTimeoutRef.current);
+      renderTimeoutRef.current = null;
+    }
   };
 
   if (loadingState === 'loading') {
     return (
       <div className={styles.loadingContainer}>
         <Spinner size="large" />
-        <Body1>Loading WebChat Preview...</Body1>
+        <Body1>
+          {useMockDirectLine 
+            ? 'Loading WebChat Preview (Mock Mode)...' 
+            : 'Connecting to DirectLine...'}
+        </Body1>
       </div>
     );
   }
@@ -188,82 +276,23 @@ export const WebChatPreview: React.FC<WebChatPreviewProps> = ({
         <Button onClick={retryLoading}>Retry</Button>
         <MessageBar>
           <MessageBarBody>
-            WebChat preview is temporarily unavailable. You can still customize themes and export configurations.
+            {useMockDirectLine 
+              ? 'Error loading WebChat component. Please check console for details.'
+              : 'Failed to connect to DirectLine. Please verify your token endpoint.'}
           </MessageBarBody>
         </MessageBar>
       </div>
     );
   }
-
-  // Show mock preview
   return (
     <div className={styles.container}>
-      <div className={styles.mockPreviewContainer}>
-        <div className={styles.mockHeader}>
-          <Chat24Regular />
-          <Body1>WebChat Preview (Mock)</Body1>
-        </div>
-        
-        <div className={styles.mockChatArea} style={{
-          backgroundColor: styleOptions.backgroundColor || tokens.colorNeutralBackground1,
-        }}>
-          <div 
-            className={`${styles.mockMessage} ${styles.botMessage}`}
-            style={{
-              backgroundColor: styleOptions.bubbleBackground || styleOptions.botMessageBackground || tokens.colorBrandBackground2,
-              color: styleOptions.bubbleTextColor || styleOptions.botMessageTextColor || tokens.colorBrandForeground2,
-            }}
-          >
-            👋 Hello! I'm your Copilot assistant. How can I help you today?
+      <div className={styles.webChatContainer} ref={webChatRef}>
+        {/* WebChat will be rendered here by the botframework-webchat library */}
+        {isUpdatingStyles && (
+          <div className={styles.updatingOverlay}>
+            <Spinner size="medium" />
           </div>
-          
-          <div 
-            className={`${styles.mockMessage} ${styles.userMessage}`}
-            style={{
-              backgroundColor: styleOptions.bubbleFromUserBackground || styleOptions.userMessageBackground || tokens.colorNeutralBackground3,
-              color: styleOptions.bubbleFromUserTextColor || styleOptions.userMessageTextColor || tokens.colorNeutralForeground1,
-            }}
-          >
-            Can you help me with my project?
-          </div>
-          
-          <div 
-            className={`${styles.mockMessage} ${styles.botMessage}`}
-            style={{
-              backgroundColor: styleOptions.bubbleBackground || styleOptions.botMessageBackground || tokens.colorBrandBackground2,
-              color: styleOptions.bubbleTextColor || styleOptions.botMessageTextColor || tokens.colorBrandForeground2,
-            }}
-          >
-            Absolutely! I'd be happy to help with your project. What specific area would you like assistance with?
-          </div>
-        </div>
-        
-        <div 
-          className={styles.inputArea}
-          style={{
-            backgroundColor: styleOptions.sendBoxBackground || tokens.colorNeutralBackground2,
-          }}
-        >
-          <input 
-            className={styles.mockInput}
-            placeholder="Type a message..."
-            style={{
-              backgroundColor: styleOptions.sendBoxBackground || tokens.colorNeutralBackground1,
-              color: styleOptions.sendBoxTextColor || tokens.colorNeutralForeground1,
-              borderColor: styleOptions.sendBoxBorderColor || tokens.colorNeutralStroke2,
-            }}
-            disabled
-          />
-          <Button 
-            appearance="primary"
-            style={{
-              backgroundColor: styleOptions.sendBoxButtonColor || styleOptions.accent || tokens.colorBrandBackground,
-              color: tokens.colorNeutralForegroundOnBrand,
-            }}
-          >
-            Send
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );

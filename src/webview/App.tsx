@@ -97,6 +97,13 @@ const useStyles = makeStyles({
     flex: 1, /* Take remaining space */
     position: 'relative', /* For absolute positioning if needed */
   },
+  previewSection: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    overflow: 'hidden',
+  },
   actions: {
     display: 'flex',
     ...shorthands.gap('8px'),
@@ -126,10 +133,11 @@ const useStyles = makeStyles({
   },  exportButtons: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '12px',
+    marginBottom: '8px',
     padding: '8px 0',
     justifyContent: 'flex-end',
     borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    flexShrink: 0, /* Prevent shrinking */
   },
 });
 
@@ -390,11 +398,13 @@ export const App: React.FC = () => {
             <Button icon={<Code24Regular />} onClick={handleExportJSON} type="button">Export JSON</Button>
             <Button icon={<Save24Regular />} onClick={handleExportHTML} type="button">Export HTML</Button>
           </div>
+          <div className={styles.previewSection}>
             <WebChatPreview
-            directLineTokenEndpoint={directLineTokenEndpoint || undefined}
-            useMockDirectLine={useMockDirectLine}
-            styleOptions={styleOptions}
-          />
+              directLineTokenEndpoint={directLineTokenEndpoint || undefined}
+              useMockDirectLine={useMockDirectLine}
+              styleOptions={styleOptions}
+            />
+          </div>
         </div>
       </div>
     </div>
