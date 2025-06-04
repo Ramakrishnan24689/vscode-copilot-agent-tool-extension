@@ -1,4 +1,4 @@
-export interface McsColorScheme {
+export interface CopilotColorScheme {
     primary: string;
     secondary: string;
     accent: string;
@@ -11,7 +11,7 @@ export interface McsColorScheme {
     success: string;
 }
 
-export interface McsTheme {
+export interface CopilotTheme {
     theme: {
         name: string;
         version: string;
@@ -43,10 +43,10 @@ export interface McsTheme {
     };
 }
 
-export function generateMcsKitJson(colorScheme: McsColorScheme): McsTheme {
+export function generateCopilotKitJson(colorScheme: CopilotColorScheme): CopilotTheme {
     return {
         theme: {
-            name: "Custom MCS Theme",
+            name: "Custom Copilot Theme",
             version: "1.0.0",
             platform: "Microsoft Copilot Studio",
             colors: {
@@ -71,7 +71,7 @@ export function generateMcsKitJson(colorScheme: McsColorScheme): McsTheme {
             },
             metadata: {
                 createdAt: new Date().toISOString(),
-                createdBy: "VS Code MCS Extension"
+                createdBy: "VS Code Copilot Agent Toolkit Extension"
             }
         }
     };

@@ -52,8 +52,11 @@
 
 ### 1. 🧹 Preparation
 ```bash
-# Run the comprehensive preparation script
+# Option 1: Run the comprehensive preparation script
 npm run prepare-publish
+
+# Option 2: Use the PowerShell quick-publish script (Windows)
+.\quick-publish.ps1
 ```
 
 ### 2. 🔍 Manual Testing

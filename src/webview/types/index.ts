@@ -100,3 +100,18 @@ export interface ExportPanelProps {
   onExport: (format: 'json' | 'css' | 'scss') => void;
   isExporting: boolean;
 }
+
+// VSCode webview API types
+interface VSCodeAPI {
+  postMessage(message: any): void;
+  getState(): any;
+  setState(state: any): void;
+}
+
+declare global {
+  interface Window {
+    vscode?: VSCodeAPI;
+    acquireVsCodeApi?: () => VSCodeAPI;
+    reactAppLoaded?: boolean;
+  }
+}

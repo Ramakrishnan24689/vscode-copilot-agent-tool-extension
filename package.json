@@ -1,14 +1,15 @@
 {
   "name": "copilot-agent-tools",
-  "displayName": "Copilot Agent Tools",
+    "displayName": "Copilot Agent Toolkit",
   "description": "A comprehensive VS Code extension for designing and customizing Microsoft Copilot agent interfaces with real-time preview, theme gallery, and export capabilities.",
   "version": "0.1.0",
   "publisher": "RamakrishnanR",
-  "icon": "media/icon.png",  "categories": [
+  "icon": "media/icon.png",
+  "preview": true,"categories": [
     "Other",
     "Themes",
     "Visualization"
-  ],"keywords": [
+  ],  "keywords": [
     "copilot",
     "agent",
     "chatbot",
@@ -21,28 +22,27 @@
     "customization",
     "ui design",
     "preview",
+    "beta",
+    "pre-release",
     "export"
-  ],
-  "repository": {
+  ],"repository": {
     "type": "git",
     "url": "https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension"
   },
   "bugs": {
-    "url": "https://github.com/Ramakrishnan24689/vscode-mcs-color-extension/issues"
+    "url": "https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension/issues"
   },
-  "homepage": "https://github.com/Ramakrishnan24689/vscode-mcs-color-extension#readme",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.60.0"
+  "homepage": "https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension#readme",
+  "license": "MIT",  "engines": {
+    "vscode": "^1.63.0"
   },
   "activationEvents": [
     "onCommand:copilotAgentTools.openThemeGallery"
   ],
   "main": "./out/extension.js",  "contributes": {    "commands": [
       {
-        "command": "copilotAgentTools.openThemeGallery",
-        "title": "Open Copilot Agent Tools",
-        "category": "Copilot Agent Tools",
+        "command": "copilotAgentTools.openThemeGallery",        "title": "Open Copilot Agent Toolkit",
+        "category": "Copilot Agent Toolkit",
         "icon": "$(robot)"
       }
     ],    "keybindings": [

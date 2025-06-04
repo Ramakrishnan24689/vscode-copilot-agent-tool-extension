@@ -159,9 +159,8 @@ const generateExportCode = (theme: any, customColors: any, format: string): stri
   --warning-color: ${effectiveColors.warningColor};
 }`;
 
-    case 'scss':
-      return `// ${theme.name} Theme Variables
-// Generated from MCS Color Extension
+    case 'scss':      return `// ${theme.name} Theme Variables
+// Generated from Copilot Agent Toolkit Extension
 
 // Bot Message Colors
 $bot-message-bg: ${effectiveColors.botMessageBackground};

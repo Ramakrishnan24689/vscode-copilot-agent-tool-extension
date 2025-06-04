@@ -2,21 +2,18 @@
 import { useState, useCallback, useEffect } from 'react';
 import { VSCodeMessage, Notification } from '../types';
 
-declare global {
-  interface Window {
-    acquireVsCodeApi(): {
-      postMessage: (message: any) => void;
-      setState: (state: any) => void;
-      getState: () => any;
-    };
-  }
-}
+// We don't need to redeclare Window interface here since it's in types/index.ts
 
 export const useVSCodeAPI = () => {
   const [notification, setNotification] = useState<Notification | null>(null);
   const [vscode] = useState(() => {
     try {
-      return window.acquireVsCodeApi();
+      if (window.vscode) {
+        return window.vscode;
+      } else if (window.acquireVsCodeApi) {
+        return window.acquireVsCodeApi();
+      }
+      throw new Error('VS Code API not available');
     } catch (error) {
       console.warn('VS Code API not available, running in development mode');
       return {

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export interface MCSThemeConfig {
+export interface CopilotThemeConfig {
     primary: string;
     accent: string;
     botMessage: string;
@@ -11,12 +11,11 @@ export interface MCSThemeConfig {
 }
 
 export class HTMLGenerator {
-    
-    /**
+      /**
      * Generates a complete HTML file for Microsoft Copilot Studio WebChat
      * that can be used as a custom canvas
      */
-    static generateCopilotStudioHTML(config: MCSThemeConfig, tokenEndpoint?: string): string {
+    static generateCopilotStudioHTML(config: CopilotThemeConfig, tokenEndpoint?: string): string {
         return `<!doctype html>
 <html lang="en">
 <head>
@@ -169,15 +168,15 @@ export class HTMLGenerator {
                     // Clean interface
                     hideUploadButton: true,
                     hideSendBox: false
-                };
-
-                // Replace with your actual token endpoint from Copilot Studio
+                };                // Replace with your actual token endpoint from Copilot Studio
                 // Go to Settings -> Channels -> Email to get your token endpoint
-                const tokenEndpointURL = new URL('${tokenEndpoint || 'YOUR_TOKEN_ENDPOINT_HERE'}');
+                const tokenEndpointString = '${tokenEndpoint || 'YOUR_TOKEN_ENDPOINT_HERE'}';
                 
-                if (tokenEndpointURL.href === 'YOUR_TOKEN_ENDPOINT_HERE') {
+                if (tokenEndpointString === 'YOUR_TOKEN_ENDPOINT_HERE') {
                     throw new Error('Please replace YOUR_TOKEN_ENDPOINT_HERE with your actual Copilot Studio token endpoint.');
                 }
+                
+                const tokenEndpointURL = new URL(tokenEndpointString);
 
                 // Set locale (recommended to match page language)
                 const locale = document.documentElement.lang || 'en';
@@ -271,7 +270,7 @@ export class HTMLGenerator {
      * Generates a standalone demo HTML file with mock data
      * Useful for testing themes without requiring a Copilot Studio connection
      */
-    static generateDemoHTML(config: MCSThemeConfig): string {
+    static generateDemoHTML(config: CopilotThemeConfig): string {
         return `<!doctype html>
 <html lang="en">
 <head>

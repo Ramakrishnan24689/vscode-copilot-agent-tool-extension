@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline'; script-src {{cspSource}} 'unsafe-eval'; font-src {{cspSource}}; img-src {{cspSource}} data:;">
-    <title>MCS Theme Gallery</title>    <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline'; script-src {{cspSource}} 'unsafe-inline' 'unsafe-eval'; font-src {{cspSource}}; img-src {{cspSource}} data: https:; connect-src {{cspSource}} https: wss: ws:; media-src {{cspSource}} https:; frame-src 'none'; object-src 'none'; base-uri 'none';">
+    <title>Copilot Agent Toolkit (CAT)</title><style>
         html, body {
             margin: 0;
             padding: 0;
@@ -75,24 +74,24 @@
         }
     </style>
 </head>
-<body>
-    <div id="root">
+<body>    <div id="root">
         <div class="loading">
             <div class="loading-spinner"></div>
-            <div>Loading MCS Theme Gallery...</div>
+            <div>Loading Copilot Agent Toolkit...</div>
         </div>
-    </div>
-
-    <script>
+    </div><script>
         // Error handling for React app loading
         window.addEventListener('error', function(event) {
-            const root = document.getElementById('root');
-            root.innerHTML = `
-                <div class="error">
+            console.error('Global error captured:', event.error || event.message);
+            
+            const root = document.getElementById('root');            root.innerHTML = `                <div class="error">
                     <div class="error-icon">⚠️</div>
-                    <div class="error-message">Failed to load MCS Theme Gallery</div>
+                    <div class="error-message">Failed to load Copilot Agent Toolkit</div>
                     <div class="error-details">
                         ${event.error?.message || event.message || 'An unknown error occurred'}
+                    </div>
+                    <div class="error-details">
+                        ${event.error?.stack || ''}
                     </div>
                 </div>
             `;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   makeStyles,
   shorthands,
@@ -35,6 +35,7 @@ import { useVSCodeAPI } from './hooks/useVSCodeAPI';
 import { Input, Label } from '@fluentui/react-components';
 import { Save24Regular } from '@fluentui/react-icons';
 import defaultStyleOptions from './data/defaultStyleOptions.json';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 console.log('App component loading...');
 
@@ -46,12 +47,21 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.padding('16px'),
     ...shorthands.gap('16px'),
-  },
-  header: {
+  },  header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     ...shorthands.padding('8px', '0'),
+  },
+  headerContent: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap('12px'),
+  },
+  logo: {
+    width: '40px',
+    height: '40px',
+    flexShrink: 0,
   },
   content: {
     display: 'grid',
@@ -152,9 +162,60 @@ export const App: React.FC = () => {
     isLoading,
   } = useThemeSelection();
     const { sendMessage, showNotification, notification } = useVSCodeAPI();
-  const [isExporting, setIsExporting] = useState(false);  const [styleOptions, setStyleOptions] = useState<any>(defaultStyleOptions);
+  const [isExporting, setIsExporting] = useState(false);
+  // Declare a ref to track if app is mounted
+  const appMountedRef = useRef<boolean>(false);
+  const [styleOptions, setStyleOptions] = useState<any>(defaultStyleOptions);
   const [directLineTokenEndpoint, setDirectLineTokenEndpoint] = useState<string>('');
-  const [useMockDirectLine, setUseMockDirectLine] = useState<boolean>(true); // Default to mock for better development experience  // Apply default Microsoft theme when component mounts and selectedTheme is available
+  const [useMockDirectLine, setUseMockDirectLine] = useState<boolean>(true); // Default to mock for better development experience
+  const [logoUri, setLogoUri] = useState<string>('');
+
+  // Use an effect to mark when the app is fully mounted
+  useEffect(() => {
+    console.log('App component mounted');
+    appMountedRef.current = true;
+    
+    // Signal to the parent window that React is loaded
+    if (window) {
+      window.reactAppLoaded = true;
+    }
+    
+    return () => {
+      appMountedRef.current = false;
+      if (window) {
+        window.reactAppLoaded = false;
+      }
+    };
+  }, []);
+  // Get the logo URI from VS Code
+  useEffect(() => {
+    if (window.vscode) {
+      console.log('Requesting logo URI from VS Code extension');
+      // Request the logo URI from the extension
+      window.vscode.postMessage({
+        command: 'getLogo'
+      });
+    } else {
+      console.warn('VS Code API not available, cannot request logo');
+    }
+  }, []);
+  // Listen for messages from the extension
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      console.log('Received message from extension:', message);
+      
+      if (message.command === 'logoUri') {
+        console.log('Setting logo URI:', message.uri);
+        setLogoUri(message.uri);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // Apply default Microsoft theme when component mounts and selectedTheme is available
   useEffect(() => {
     if (selectedTheme && selectedTheme.colors) {
       console.log('Applying theme:', selectedTheme.name, selectedTheme.colors);
@@ -331,82 +392,89 @@ export const App: React.FC = () => {
     a.download = 'webchat-embed.html';
     a.click();
     URL.revokeObjectURL(url);
-  };
-
-  return (
-    <div className={styles.root}>      {/* Header */}
-      <header className={styles.header}>
-        <div>
-          <Title1>Copilot Agent Tools</Title1>
-          <br />
-          <Body1>Customize your Microsoft Copilot agent interfaces with real-time preview, themes & export capabilities.</Body1>
-        </div>
-      </header>
-      <div className={`${styles.content} ${styles.contentResponsive}`}>        {/* Left Panel - Theme Gallery, Style Options & Token */}
-        <div className={styles.leftPanel}>
-          {/* Theme Gallery Section */}
-          <div className={styles.themeSection}>
-            <ThemeGallery
-              themes={themes}
-              selectedTheme={selectedTheme}
-              onSelectTheme={handleThemeSelect}
-              isLoading={isLoading}            />
+  };  return (
+    <ErrorBoundary>
+      <div className={styles.root}>{/* Header */}
+        <header className={styles.header}>
+          <div className={styles.headerContent}>            {logoUri && (
+              <img 
+                src={logoUri} 
+                alt="Copilot Agent Toolkit Logo" 
+                className={styles.logo}
+              />
+            )}
+            <div>
+              <Title1>Copilot Agent Toolkit (CAT)</Title1>
+              <br />
+              <Body1>Customize your Microsoft Copilot agent interfaces with real-time preview, themes & export capabilities.</Body1>
+            </div>
           </div>
+        </header>
+        <div className={`${styles.content} ${styles.contentResponsive}`}>{/* Left Panel - Theme Gallery, Style Options & Token */}
+          <div className={styles.leftPanel}>
+            {/* Theme Gallery Section */}
+            <div className={styles.themeSection}>
+              <ThemeGallery
+                themes={themes}
+                selectedTheme={selectedTheme}
+                onSelectTheme={handleThemeSelect}
+                isLoading={isLoading}            />
+            </div>
 
-          <div className={styles.customDivider} />
+            <div className={styles.customDivider} />
 
-          {/* Configuration Section */}
-          <div className={`${styles.styleForm} ${styles.configSection}`}>
-              {/* Mock DirectLine Toggle */}
-              <div className={styles.styleField}>
-                <Label htmlFor="useMockDirectLine">Use Mock DirectLine</Label>
-                <Switch
-                  id="useMockDirectLine"
-                  checked={useMockDirectLine}
-                  onChange={(_, data) => setUseMockDirectLine(data.checked)}
-                />
-                <Body1 style={{ fontSize: '12px', color: tokens.colorNeutralForeground2 }}>
-                  {useMockDirectLine ? 'Using mock data for development' : 'Using real DirectLine connection'}
-                </Body1>
-              </div>              {/* DirectLine Token Endpoint (only show when not using mock) */}
-              {!useMockDirectLine && (
+            {/* Configuration Section */}
+            <div className={`${styles.styleForm} ${styles.configSection}`}>
+                {/* Mock DirectLine Toggle */}
                 <div className={styles.styleField}>
-                  <Label htmlFor="directLineTokenEndpoint">DirectLine Token Endpoint</Label>
-                  <Input
-                    id="directLineTokenEndpoint"
-                    type="text"
-                    value={directLineTokenEndpoint}
-                    className={styles.textInput}
-                    onChange={(_, data) => setDirectLineTokenEndpoint(data.value)}
-                    placeholder="https://your-endpoint.com/api/directline/token"
+                  <Label htmlFor="useMockDirectLine">Use Mock DirectLine</Label>
+                  <Switch
+                    id="useMockDirectLine"
+                    checked={useMockDirectLine}
+                    onChange={(_, data) => setUseMockDirectLine(data.checked)}
                   />
                   <Body1 style={{ fontSize: '12px', color: tokens.colorNeutralForeground2 }}>
-                    URL that returns a DirectLine token
+                    {useMockDirectLine ? 'Using mock data for development' : 'Using real DirectLine connection'}
                   </Body1>
-                </div>              )}            </div>
+                </div>              {/* DirectLine Token Endpoint (only show when not using mock) */}
+                {!useMockDirectLine && (
+                  <div className={styles.styleField}>
+                    <Label htmlFor="directLineTokenEndpoint">DirectLine Token Endpoint</Label>
+                    <Input
+                      id="directLineTokenEndpoint"
+                      type="text"
+                      value={directLineTokenEndpoint}
+                      className={styles.textInput}
+                      onChange={(_, data) => setDirectLineTokenEndpoint(data.value)}
+                      placeholder="https://your-endpoint.com/api/directline/token"
+                    />
+                    <Body1 style={{ fontSize: '12px', color: tokens.colorNeutralForeground2 }}>
+                      URL that returns a DirectLine token
+                    </Body1>
+                  </div>              )}            </div>
 
-            <div className={styles.customDivider} />            {/* Chat Customization Section */}
-            <div className={styles.customizationSection}>
-              <ChatCustomizationPanel
-                styleOptions={styleOptions}
-                onStyleChange={handleStyleChange}
-              />
-            </div>
-        </div>        {/* Right Panel - Live WebChat Preview */}
-        <div className={styles.rightPanel}>
-          <div className={styles.exportButtons}>
-            <Button icon={<Code24Regular />} onClick={handleExportJSON} type="button">Export JSON</Button>
-            <Button icon={<Save24Regular />} onClick={handleExportHTML} type="button">Export HTML</Button>
-          </div>
-          <div className={styles.previewSection}>
-            <WebChatPreview
-              directLineTokenEndpoint={directLineTokenEndpoint || undefined}
-              useMockDirectLine={useMockDirectLine}
-              styleOptions={styleOptions}
-            />
-          </div>
-        </div>
+              <div className={styles.customDivider} />            {/* Chat Customization Section */}
+              <div className={styles.customizationSection}>
+                <ChatCustomizationPanel
+                  styleOptions={styleOptions}
+                  onStyleChange={handleStyleChange}
+                />
+              </div>
+          </div>        {/* Right Panel - Live WebChat Preview */}
+          <div className={styles.rightPanel}>
+            <div className={styles.exportButtons}>
+              <Button icon={<Code24Regular />} onClick={handleExportJSON} type="button">Export JSON</Button>
+              <Button icon={<Save24Regular />} onClick={handleExportHTML} type="button">Export HTML</Button>
+            </div>            <div className={styles.previewSection}>
+              <ErrorBoundary>
+                <WebChatPreview
+                  directLineTokenEndpoint={directLineTokenEndpoint || undefined}
+                  useMockDirectLine={useMockDirectLine}
+                  styleOptions={styleOptions}
+                />
+              </ErrorBoundary>
+            </div>          </div>        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };

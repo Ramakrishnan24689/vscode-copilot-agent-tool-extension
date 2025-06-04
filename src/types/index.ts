@@ -7,7 +7,7 @@ export interface ColorSelection {
     selectedColors: Color[];
 }
 
-export interface McsColorScheme {
+export interface CopilotColorScheme {
     primary: string;
     secondary: string;
     accent: string;
@@ -20,7 +20,7 @@ export interface McsColorScheme {
     success?: string;
 }
 
-export interface McsThemeColors {
+export interface CopilotThemeColors {
     branding: {
         primary: string;
         secondary: string;
@@ -41,12 +41,12 @@ export interface McsThemeColors {
     };
 }
 
-export interface McsTheme {
+export interface CopilotTheme {
     theme: {
         name: string;
         version: string;
         platform: string;
-        colors: McsThemeColors;
+        colors: CopilotThemeColors;
         metadata: {
             createdAt: string;
             createdBy: string;

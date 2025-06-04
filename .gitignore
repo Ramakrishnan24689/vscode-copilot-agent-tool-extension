@@ -110,10 +110,10 @@ webview-dist/
 src/webview/dist/
 src/webview/build/
 
-# Copilot Agent Tools Extension specific ignores
+# Copilot Agent Toolkit Extension specific ignores
 # Generated VSIX packages (exclude versioned packages, keep final release)
 copilot-agent-tools-*.vsix
-vscode-mcs-color-extension-*.vsix
+vscode-copilot-agent-tool-extension-*.vsix
 agent-tools-*.vsix
 
 # Test output files (temporary test results)

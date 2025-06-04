@@ -14,10 +14,9 @@ export class ColorPickerPanel {
 
         if (ColorPickerPanel.currentPanel) {
             ColorPickerPanel.currentPanel._panel.reveal(column);
-            return;
-        }        const panel = vscode.window.createWebviewPanel(
-            'mcsThemeGallery',
-            'Copilot Agent Tools',
+            return;        }        const panel = vscode.window.createWebviewPanel(
+            'copilotAgentToolsThemeGallery',
+            'Copilot Agent Toolkit',
             column || vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -40,7 +39,17 @@ export class ColorPickerPanel {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);        // Handle messages from the webview
         this._panel.webview.onDidReceiveMessage(
             message => {
-                switch (message.command) {                    case 'applyColor':
+                switch (message.command) {                    case 'getLogo':
+                        // Send the logo URI back to the webview
+                        const logoUri = this._panel.webview.asWebviewUri(
+                            vscode.Uri.joinPath(this._extensionUri, 'media', 'icon.png')
+                        );
+                        this._panel.webview.postMessage({
+                            command: 'logoUri',
+                            uri: logoUri.toString()
+                        });
+                        return;
+                    case 'applyColor':
                     case 'applyTheme':
                         // Send the message to the command handler via VS Code command
                         vscode.commands.executeCommand('copilotAgentTools.applyColorFromWebview', message);
@@ -264,7 +273,7 @@ $mcs-warning-color: ${effectiveColors.warningColor};`;
         try {
             // Show save dialog
             const uri = await vscode.window.showSaveDialog({
-                defaultUri: vscode.Uri.file('mcs-color-config.json'),
+                defaultUri: vscode.Uri.file('copilot-agent-tools-config.json'),
                 filters: {
                     'JSON Files': ['json'],
                     'All Files': ['*']
@@ -290,9 +299,9 @@ $mcs-warning-color: ${effectiveColors.warningColor};`;
         }
     }    private _update() {
         const webview = this._panel.webview;
-        this._panel.title = 'Copilot Agent Tools';
+        this._panel.title = 'Copilot Agent Toolkit';
         this._panel.webview.html = this._getHtmlForWebview(webview);
-    }    private _getHtmlForWebview(webview: vscode.Webview) {
+    }private _getHtmlForWebview(webview: vscode.Webview) {
         // Get CSP source for security
         const cspSource = webview.cspSource;
 
@@ -334,9 +343,8 @@ $mcs-warning-color: ${effectiveColors.warningColor};`;
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src ${cspSource} 'unsafe-eval'; font-src ${cspSource}; img-src ${cspSource} data:;">
-                <title>Copilot Agent Tools</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src ${cspSource} 'unsafe-inline' 'unsafe-eval'; font-src ${cspSource}; img-src ${cspSource} data: https:; connect-src ${cspSource} https: wss: ws:; media-src ${cspSource} https:; frame-src 'none'; object-src 'none'; base-uri 'none';">
+                <title>Copilot Agent Toolkit</title>
                 <style>
                     body {
                         margin: 0;
@@ -359,10 +367,9 @@ $mcs-warning-color: ${effectiveColors.warningColor};`;
                     }
                 </style>
             </head>
-            <body>
-                <div id="root">
+            <body>                <div id="root">
                     <div class="loading">
-                        <div>Loading Copilot Agent Tools...</div>
+                        <div>Loading Copilot Agent Toolkit...</div>
                     </div>
                 </div>
                 <script>

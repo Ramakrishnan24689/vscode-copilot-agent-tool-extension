@@ -1,14 +1,16 @@
-# Copilot Agent Tools (CATs) - VS Code Extension
+# Copilot Agent Toolkit (CAT) - VS Code Extension
 
 A comprehensive Visual Studio Code extension for designing and customizing Microsoft Copilot agent interfaces with real-time preview, theme gallery, and export capabilities. Features 6 professional themes, comprehensive styling options, mock DirectLine testing, and one-click export to production-ready JSON/HTML code.
 
 ## Screenshots
 
-*Screenshots will be added here before marketplace publication to showcase:*
-- Theme Gallery with 6 professional themes
-- Live Copilot Agent Preview with customization panels
-- Export functionality and generated code
-- Color picker and styling options
+![Copilot Agent Toolkit Interface](https://raw.githubusercontent.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension/main/screenshots/ToolScreenshot.png)
+
+*The Copilot Agent Toolkit provides a comprehensive interface featuring:*
+- **Theme Gallery**: 6 professional themes with visual preview cards
+- **Live WebChat Preview**: Real-time Bot Framework WebChat integration
+- **Customization Panels**: Comprehensive styling options organized in accordion panels
+- **Export Functionality**: One-click export to production-ready JSON/HTML code
 
 ## Features
 
@@ -66,6 +68,13 @@ Choose from 6 professionally designed themes with instant visual preview:
 
 ## Installation
 
+### From VS Code Marketplace
+1. Open VS Code
+2. Go to Extensions view (`Ctrl+Shift+X`)
+3. Search for "Copilot Agent Toolkit"
+4. Click "Install" on the extension by RamakrishnanR
+5. **Alternative**: [Install directly from marketplace](https://marketplace.visualstudio.com/items?itemName=RamakrishnanR.copilot-agent-tools)
+
 ### From VSIX Package
 1. Download the latest `copilot-agent-tools.vsix` file
 2. Open VS Code
@@ -76,8 +85,8 @@ Choose from 6 professionally designed themes with instant visual preview:
 ### From Source
 1. Clone the repository:
    ```powershell
-   git clone https://github.com/Ramakrishnan24689/vscode-mcs-color-extension.git
-   cd vscode-mcs-color-extension
+   git clone https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension.git
+   cd vscode-copilot-agent-tool-extension
    ```
 
 2. Install dependencies:
@@ -105,7 +114,7 @@ Choose from 6 professionally designed themes with instant visual preview:
 ## Usage
 
 ### Quick Start
-1. **Open Extension**: Press `Ctrl+Shift+P` → Type "Copilot Agent Tools" → Select "Open Copilot Agent Tools"
+1. **Open Extension**: Press `Ctrl+Shift+P` → Type "Copilot Agent Toolkit" → Select "Open Copilot Agent Toolkit"
 2. **Choose Theme**: Browse the theme gallery at the top and click any theme card
 3. **Customize**: Use the configuration and customization panels below
 4. **Export**: Click "Export JSON" or "Export HTML" buttons to get production code
@@ -113,7 +122,7 @@ Choose from 6 professionally designed themes with instant visual preview:
 ### Interface Layout
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ 🎨 Copilot Agent Tools                                  │
+│ 🎨 Copilot Agent Toolkit                                │
 ├─────────────────────────────────────────────────────────┤
 │  Theme Gallery + Config      │  🤖 Live WebChat Preview │
 │  ┌─────────────────────────┐ │  ┌─────────────────────────┐ │
@@ -191,7 +200,7 @@ Complete HTML file with DirectLine integration:
 src/
 ├── extension.ts              # Main extension entry point
 ├── commands/
-│   └── colorSelector.ts      # Copilot Agent Tools command
+│   └── colorSelector.ts      # Copilot Agent Toolkit command
 ├── providers/
 │   └── colorPickerPanel.ts   # Webview panel provider
 ├── webview/

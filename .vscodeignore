@@ -38,6 +38,7 @@ Thumbs.db
 
 # Publishing preparation files
 prepare-publish.js
+quick-publish.ps1
 PUBLISHING.md
 
 # TypeScript source files (we want compiled JS instead)
