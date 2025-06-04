@@ -68,48 +68,13 @@ Choose from 6 professionally designed themes with instant visual preview:
 
 ## Installation
 
-### From VS Code Marketplace
 1. Open VS Code
 2. Go to Extensions view (`Ctrl+Shift+X`)
 3. Search for "Copilot Agent Toolkit"
 4. Click "Install" on the extension by RamakrishnanR
-5. **Alternative**: [Install directly from marketplace](https://marketplace.visualstudio.com/items?itemName=RamakrishnanR.copilot-agent-tools)
 
-### From VSIX Package
-1. Download the latest `copilot-agent-tools.vsix` file
-2. Open VS Code
-3. Open Command Palette (Ctrl+Shift+P)
-4. Type "Extensions: Install from VSIX"
-5. Select the downloaded VSIX file
+**Alternative**: [Install directly from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RamakrishnanR.copilot-agent-tools)
 
-### From Source
-1. Clone the repository:
-   ```powershell
-   git clone https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension.git
-   cd vscode-copilot-agent-tool-extension
-   ```
-
-2. Install dependencies:
-   ```powershell
-   npm install
-   ```
-
-3. Build the webview:
-   ```powershell
-   npm run build-webview
-   ```
-
-4. Compile the extension:
-   ```powershell
-   npm run compile
-   ```
-
-5. Package the extension:
-   ```powershell
-   vsce package
-   ```
-
-6. Install the generated VSIX file in VS Code
 
 ## Usage
 
@@ -180,88 +145,74 @@ Complete HTML file with DirectLine integration:
 - Production-ready styling
 - Responsive design
 
-## Development & Architecture
+## Connecting to Your Copilot Studio Agent
 
-### Technology Stack
-- **Frontend**: React 18 + TypeScript + Fluent UI v9
-- **WebChat**: Microsoft Bot Framework WebChat
-- **Build**: Webpack + VS Code Extension API
-- **Styling**: CSS-in-JS with Fluent UI design tokens
+The extension exports HTML with a placeholder token endpoint. Follow these steps to connect your exported interface to your actual Copilot Studio agent:
 
-### Key Features
-- **Real-time Preview**: Instant WebChat updates without page reloads
-- **Theme System**: Professional color schemes with proper accent mapping
-- **Font Selection**: Popular web fonts with live preview
-- **Mock DirectLine**: Test without bot connection
-- **Export Ready**: Production JSON and HTML generation
+> ⚠️ **Authentication Note**: This method works for **non-authenticated chatbots only**. For enterprise/authenticated bots requiring user login, additional authentication setup is needed.
 
-### Project Structure
-```
-src/
-├── extension.ts              # Main extension entry point
-├── commands/
-│   └── colorSelector.ts      # Copilot Agent Toolkit command
-├── providers/
-│   └── colorPickerPanel.ts   # Webview panel provider
-├── webview/
-│   ├── App.tsx              # Main React application
-│   ├── index.tsx            # React entry point
-│   ├── components/
-│   │   ├── ThemeGallery.tsx # Theme selection with visual cards
-│   │   ├── WebChatPreview.tsx # Live Bot Framework WebChat
-│   │   └── ChatCustomizationPanel.tsx # Styling controls
-│   ├── data/
-│   │   ├── defaultThemes.ts # 6 predefined professional themes
-│   │   └── defaultStyleOptions.json # Default WebChat config
-│   ├── hooks/
-│   │   ├── useThemeSelection.ts # Theme state management
-│   │   └── useVSCodeAPI.ts  # VS Code integration
-│   └── utils/
-│       └── MockDirectLine.ts # Mock DirectLine for testing
-└── test/
-    └── suite/
-        └── extension.test.ts # Extension functionality tests
+> 📖 **Additional Reference**: For more details on customizing Copilot Studio canvases, see the [official Microsoft Learn documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/customize-default-canvas?tabs=webApp#customize-the-default-canvas-simple).
 
-out/webview/
-├── index.html              # Compiled React application
-└── index.js               # Webpack bundle (optimized)
-│   │   ├── WebChatPreview.tsx # Live Bot Framework WebChat
-│   │   └── ChatCustomizationPanel.tsx # Styling controls
-│   ├── data/
-│   │   ├── defaultThemes.ts # 6 predefined professional themes
-│   │   └── defaultStyleOptions.json # Default WebChat config
-│   ├── hooks/
-│   │   ├── useThemeSelection.ts # Theme state management
-│   │   └── useVSCodeAPI.ts  # VS Code integration
-│   └── utils/
-│       └── MockDirectLine.ts # Mock DirectLine for testing
-└── test/
-    └── suite/
-        └── extension.test.ts # Extension functionality tests
+### Step 1: Export Your Custom Design
+1. **Design your interface** in the Copilot Agent Toolkit
+2. **Click "Export HTML"** to download your styled chat interface
+3. **Save the file** (e.g., `my-custom-chat.html`)
 
-out/webview/
-├── index.html              # Compiled React application
-└── index.js               # Webpack bundle (optimized)
-```
+### Step 2: Get Your Copilot Studio Token Endpoint
+1. **Open Copilot Studio** (https://copilotstudio.microsoft.com)
+2. **Select your Copilot** from the list
+3. **Navigate to Settings** → **Channels**
+4. **Create or select a channel**:
+   - For websites: Choose **"Custom website"**
+   - For mobile apps: Choose **"Mobile app"**
+5. **Copy the Token Endpoint URL**
+   - Look for: `Token endpoint` 
+   - Format: `https://xxxxx.directline.botframework.com/v3/directline/tokens/generate`
 
-### Available Scripts
-- `npm run compile` - Compile TypeScript extension
-- `npm run build-webview` - Build React webview bundle  
-- `npm run watch` - Watch for changes and compile
-- `vsce package` - Package extension for distribution
+### Step 3: Update the Exported HTML
+1. **Open your exported HTML file** in any text editor
+2. **Find this line** (around line 15-20):
+   ```javascript
+   const tokenEndpoint = '{INJECT_TOKENENDPOINT}';
+   ```
+3. **Replace the placeholder** with your actual endpoint:
+   ```javascript
+   const tokenEndpoint = 'https://xxxxx.directline.botframework.com/v3/directline/tokens/generate';
+   ```
 
-## Contributing
+### Step 4: Test Your Connection
+1. **Open the HTML file** in a web browser
+2. **Type a message** in the chat interface
+3. **Verify the connection**:
+   - ✅ **Success**: Your Copilot responds with real answers
+   - ❌ **Error**: Check the browser console for connection issues
 
-Contributions are welcome! Please feel free to:
-- Submit pull requests
-- Report issues
-- Suggest new features
-- Improve documentation
+### Step 5: Deploy to Your Website
+1. **Upload the HTML file** to your web server
+2. **Include it in your website**:
+   ```html
+   <!-- Embed as iframe -->
+   <iframe src="my-custom-chat.html" width="400" height="600"></iframe>
+   
+   <!-- Or include the chat div directly -->
+   <div id="webchat" style="height: 600px; width: 400px;"></div>
+   ```
 
-## License
+### Troubleshooting Common Issues
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+| Issue | Solution |
+|-------|----------|
+| **"Token endpoint not configured"** | Verify you replaced `{INJECT_TOKENENDPOINT}` with actual endpoint |
+| **CORS errors in browser console** | Ensure your domain is added to allowed origins in Copilot Studio |
+| **"Failed to fetch token"** | Check that the token endpoint URL is correct and accessible |
+| **Bot not responding** | Verify your Copilot is published and the channel is active |
 
-## Support
+### Production Considerations
+- **Security**: Token endpoints should only be used from trusted domains
+- **Performance**: Consider caching tokens for better performance
+- **Monitoring**: Monitor usage through Copilot Studio analytics
+- **Updates**: Regenerate exports when you update themes or styling
 
-For questions or support, please open an issue on the GitHub repository.
+>## Support
+
+For questions or support, please open an issue on the [GitHub repository](https://github.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension).
