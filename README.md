@@ -4,7 +4,7 @@ A comprehensive Visual Studio Code extension for designing and customizing Micro
 
 ## Screenshots
 
-![Copilot Agent Toolkit Interface](https://raw.githubusercontent.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension/main/screenshots/ToolScreenshot.png)
+![Copilot Agent Toolkit Interface](https://raw.githubusercontent.com/Ramakrishnan24689/vscode-copilot-agent-tool-extension/master/screenshots/ToolScreenshot.png)
 
 *The Copilot Agent Toolkit provides a comprehensive interface featuring:*
 - **Theme Gallery**: 6 professional themes with visual preview cards
