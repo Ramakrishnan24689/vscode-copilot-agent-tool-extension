@@ -131,9 +131,10 @@ Test.json
 publish-*.log
 package-*.log
 
-# Screenshots folder (empty placeholder - keep folder structure but ignore contents until ready)
+# Screenshots folder - allow PNG files for marketplace display
 screenshots/*
 !screenshots/.gitkeep
+!screenshots/*.png
 
 # VS Code workspace settings (selective ignoring)
 .vscode/settings.json
